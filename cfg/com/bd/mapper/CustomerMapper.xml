@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bd.mapper.CustomerMapper">
+
+	<update id="updateCustomer" >
+		update customer
+		set cust_name=#{cust_name},
+			cust_source=#{cust_source},
+			cust_industry=#{cust_industry},
+			cust_linkman=#{cust_linkman},
+			cust_phone=#{cust_phone},
+			cust_mobile=#{cust_mobile},
+			cust_zipcode=#{cust_zipcode},
+			cust_address=#{cust_address},
+			cust_level=#{cust_level}
+
+		where cust_id=#{cust_id}
+
+	</update>
+	<select id="getCustomerById" resultType="com.bd.entity.Customer">
+
+		select * from customer where cust_id=#{cust_id}
+	</select>
+
+    <select id="selectAllCustomer" resultType="com.bd.entity.Customer">
+
+		select cust_id,cust_name, a.dict_item_name cust_source,b.dict_item_name cust_industry,c.dict_item_name cust_level,
+		 cust_mobile,cust_phone,cust_create_id,cust_linkman,cust_createtime from customer
+		left join
+		(select dict_id,dict_item_name from base_dict where dict_type_code='002') a
+		on a.dict_id=cust_source
+		left join
+		(select dict_id,dict_item_name from base_dict where dict_type_code='001') b
+		on b.dict_id=cust_industry
+		left join
+		(select dict_id,dict_item_name from base_dict where dict_type_code='006') c
+		on c.dict_id=cust_level
+
+		<where>
+
+			<if test="cust_name!='' and cust_name!=null">
+				 cust_name =#{cust_name}
+			</if>
+			<if test="cust_source!='' and cust_source!=null">
+				and cust_source=#{cust_source}
+			</if>
+			<if test="cust_industry!='' and cust_industry!=null">
+				and  cust_industry=#{cust_industry}
+			</if>
+			<if test="cust_level!='' and cust_level!=null">
+				and  cust_level=#{cust_level}
+			</if>
+
+		</where>
+
+	</select>
+	<insert id="insertCustomer" keyProperty="cust_id" useGeneratedKeys="true">
+		insert into customer values (
+		#{cust_id},
+		#{cust_name},
+		#{cust_user_id},
+		#{cust_create_id},
+		#{cust_source},
+		#{cust_industry},
+		#{cust_level},
+		#{cust_linkman},
+		#{cust_phone},
+		#{cust_mobile},
+		#{cust_zipcode},
+		#{cust_address},
+		#{cust_createtime}
+		)
+	</insert>
+	<delete id="deleteCustomerById">
+		delete from customer where  cust_id=#{cust_id}
+	</delete>
+</mapper>

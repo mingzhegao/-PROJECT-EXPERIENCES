@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+	<context:property-placeholder location="classpath:dict.properties"/>
+    <!-- 只扫 打 Controller注解的 -->
+    <context:component-scan base-package="com.bd"
+                            use-default-filters="false">
+        <context:include-filter type="annotation"
+                                expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    <!-- 把所有静态资源放行 -->
+    <mvc:default-servlet-handler/>
+    <!-- 开启SpringMVC 自身的 注解 -->
+    <mvc:annotation-driven></mvc:annotation-driven>
+    <!-- 配置视图转换器 -->
+    <bean
+            class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsps/"></property>
+        <property name="suffix" value=".jsp"></property>
+    </bean>
+    <!-- 开启SPringMVC 对 上传的支持 -->
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+
+        <!-- one of the properties available; the maximum file size in bytes -->
+        <property name="maxUploadSize" value="1048576"/>
+        <property name="defaultEncoding" value="utf-8"></property>
+
+
+    </bean>
+    <!-- 配置SpringMVC 异常处理转换器 -->
+    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver"
+          id="simpleMappingExceptionResolver">
+        <!--  -->
+        <!-- <property name="defaultErrorView"  value="/err1"></property> -->
+
+        <property name="exceptionMappings">
+
+            <props>
+                <!--  -->
+                <prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">err1</prop>
+            </props>
+        </property>
+    </bean>
+	
+	<mvc:view-controller path="gotologin.action" view-name="login"></mvc:view-controller>
+	<mvc:view-controller path="gotocustomer.action" view-name="customer"></mvc:view-controller>
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/user/login.action"/>
+            <bean class="com.bd.intercepters.LoginIntercepter"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+
+</beans>

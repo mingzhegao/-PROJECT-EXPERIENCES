@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+	<!-- 引入 外部   文件 -->
+	<context:property-placeholder   location="classpath:db.properties"/>
+	<!-- 开启Spring注解    扫描器 -->
+	<context:component-scan base-package="com.bd"   >
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+	<!-- 配置数据源 -->
+	<bean  class="com.alibaba.druid.pool.DruidDataSource"  id="dataSource">
+		<property name="username"  value="${jdbc.username}"></property>
+		<property name="password"  value="${jdbc.password}"></property>
+		<property name="url"  value="${jdbc.url}"></property>
+		<property name="driverClassName"  value="${jdbc.driverClassName}"></property>
+	</bean>
+	<!--配置 Spring  全局事务管理器  -->
+	<bean  class="org.springframework.jdbc.datasource.DataSourceTransactionManager"  id="transactionManager">
+		<property name="dataSource"  ref="dataSource"></property>
+	</bean>
+	<!-- AOP   事务处理 -->
+	<tx:advice  id="advice1">
+		<tx:attributes>
+			<tx:method name="add*"    propagation="REQUIRED" />
+			<tx:method name="change*"    propagation="REQUIRED" />
+			<tx:method name="remove*"    propagation="REQUIRED" />
+			<tx:method name="show*"   read-only="true"/>
+			<tx:method name="get*"   read-only="true"/>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut expression="execution(* com.bd.*.service.*.*(..))" id="cut1"/>
+		<aop:advisor advice-ref="advice1"   pointcut-ref="cut1"  />
+	</aop:config>
+	<!-- 整合Mybatis -->
+	<bean  class="org.mybatis.spring.SqlSessionFactoryBean"  id="sqlSessionFactoryBean">
+		<property name="dataSource"   ref="dataSource"></property>
+		<property name="configLocation"  value="classpath:mybatis.xml"></property>
+	</bean>
+	
+	<mybatis-spring:scan base-package="com.bd.mapper"/>
+	
+	
+</beans>
